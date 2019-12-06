@@ -18,13 +18,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	commoncfg "github.com/prometheus/common/config"
 	"github.com/prometheus/common/version"
+	"io"
+	"net/http"
 
 	"github.com/prometheus/alertmanager/config"
 	"github.com/prometheus/alertmanager/notify"
@@ -74,8 +73,12 @@ type Message struct {
 }
 
 // Notify implements the Notifier interface.
+//===
 func (n *Notifier) Notify(ctx context.Context, alerts ...*types.Alert) (bool, error) {
 	data := notify.GetTemplateData(ctx, n.tmpl, alerts, n.logger)
+	for _, v := range data.Alerts{
+		v.StartsAt = v.StartsAt.Local()
+	}
 
 	groupKey, err := notify.ExtractGroupKey(ctx)
 	if err != nil {
